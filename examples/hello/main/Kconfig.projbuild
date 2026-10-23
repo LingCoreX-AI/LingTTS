@@ -1,0 +1,22 @@
+menu "LingTTS hello"
+config HELLO_BCLK
+    int "I2S BCLK GPIO"
+    default 15
+config HELLO_WS
+    int "I2S LRCK GPIO"
+    default 16
+config HELLO_DOUT
+    int "I2S DATA GPIO"
+    default 7
+config HELLO_VOLUME
+    int "Playback volume percent"
+    range 1 100
+    default 30
+config HELLO_DMA_MS
+    int "I2S DMA buffer (ms): must exceed the synthesis time of one block, or playback gaps (pops) between blocks"
+    range 100 1000
+    default 400
+config HELLO_FORCE_INTERNAL
+    bool "Use LINGTTS_MEM_INTERNAL even if PSRAM is present"
+    default n
+endmenu

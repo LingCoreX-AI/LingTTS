@@ -1,0 +1,21 @@
+menu "LingTTS demo"
+config DEMO_AP_SSID
+    string "Hotspot name"
+    default "LingTTS-Demo"
+config DEMO_AP_PASSWORD
+    string "Hotspot password (8 to 63 ASCII characters)"
+    default "lingtts-demo"
+config DEMO_BCLK
+    int "I2S BCLK GPIO"
+    default 15
+config DEMO_WS
+    int "I2S LRCK GPIO"
+    default 16
+config DEMO_DOUT
+    int "I2S DATA GPIO"
+    default 7
+config DEMO_VOLUME
+    int "Playback volume percent"
+    range 1 100
+    default 30
+endmenu

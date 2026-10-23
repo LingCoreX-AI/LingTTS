@@ -1,0 +1,37 @@
+name: 读音问题
+description: 某段文字读错了、停顿不对或念法不自然
+labels: ["读音"]
+body:
+  - type: textarea
+    id: text
+    attributes:
+      label: 输入文本
+      description: 原样粘贴，能复现问题的最短文本最好。
+    validations:
+      required: true
+  - type: input
+    id: expected
+    attributes:
+      label: 期望的读法
+      placeholder: 例如：“1203” 读作 “一二零三”
+    validations:
+      required: true
+  - type: input
+    id: actual
+    attributes:
+      label: 实际的读法
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: 版本
+      description: 串口日志或 lingtts_version() 里的版本号；在线试听填 “网页”。
+      placeholder: 0.2.0-rc1
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: 补充
+      description: 使用场景，或者能说明问题的录音（可拖入文件）。

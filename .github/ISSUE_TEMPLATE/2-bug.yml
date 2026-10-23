@@ -1,0 +1,47 @@
+name: 运行问题
+description: 编译失败、启动报错、崩溃、断音、内存不足等
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: 请不要贴设备私钥、授权文件、Wi-Fi 密码或个人信息。
+  - type: input
+    id: board
+    attributes:
+      label: 板型
+      description: 芯片模组、Flash / PSRAM 大小、功放型号。
+      placeholder: ESP32-S3 N16R8 + MAX98357A
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: LingTTS 版本和 ESP-IDF 版本
+      placeholder: 0.2.0-rc1 / ESP-IDF 5.5.6
+    validations:
+      required: true
+  - type: dropdown
+    id: mem
+    attributes:
+      label: 内存配置
+      options:
+        - PSRAM（LINGTTS_MEM_PSRAM）
+        - 内部 RAM（LINGTTS_MEM_INTERNAL）
+        - 不确定
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 用的是哪个示例或自己的工程、做了哪些改动、输入了什么文本。
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: 串口日志
+      description: 从启动开始的完整日志。
+      render: text
+    validations:
+      required: true

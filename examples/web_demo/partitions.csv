@@ -1,0 +1,8 @@
+# 16 MB Flash：应用 1.94 MB；词典分区 3 MB，完整版 lingtts_fe_full.bin（1.19 MB）也放得下
+# Name,        Type, SubType, Offset,   Size
+nvs,           data, nvs,     0x9000,   0x6000
+phy_init,      data, phy,     0xf000,   0x1000
+factory,       app,  factory, 0x10000,  0x1F0000
+lingtts_model, data, 0x40,    0x200000, 0x200000
+lingtts_fe,    data, 0x41,    0x400000, 0x300000
+lingtts_lic,   data, 0x42,    0x700000, 0x1000

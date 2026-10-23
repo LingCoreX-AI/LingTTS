@@ -1,0 +1,8 @@
+# 4 MB Flash 也放得下：模型 ≤ 2 MB，词典 ≤ 1.06 MB，授权 4 KB（裁剪版 lingtts_fe_u50 0.54 MB；完整版 1.19 MB 需要 8 MB Flash，把 lingtts_fe 改大）
+# Name,        Type, SubType, Offset,   Size
+nvs,           data, nvs,     0x9000,   0x6000
+phy_init,      data, phy,     0xf000,   0x1000
+factory,       app,  factory, 0x10000,  0xE0000
+lingtts_model, data, 0x40,    0xF0000,  0x200000
+lingtts_fe,    data, 0x41,    0x2F0000, 0x10F000
+lingtts_lic,   data, 0x42,    0x3FF000, 0x1000

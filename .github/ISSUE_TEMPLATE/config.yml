@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 商业授权与工程合作
+    url: mailto:service@lingcorex.cn
+    about: 产品部署、收费服务、板型适配和定制音色，请发邮件联系。
+  - name: 在线试听
+    url: https://edge.lingcorex.cn
+    about: 先在网页上听一下效果。
