@@ -5,7 +5,9 @@
   </picture>
 </p>
 
-# LingTTS
+# LingTTS：ESP32-S3 离线中文神经网络语音合成
+
+[English](README.en.md) | 简体中文
 
 **ESP32-S3 上的离线中文语音合成。** Offline Chinese text-to-speech for ESP32-S3.
 
@@ -14,6 +16,15 @@ LingTTS 是一款面向端侧的神经网络语音合成模型，在 ESP32-S3 �
 在线试听：<https://edge.lingcorex.cn>（服务器上跑的是同一份 C 代码和模型，编译成了 PC 版）
 
 当前版本 **0.2.0-rc1（社区预览版）**。社区版免费，示例代码 MIT；核心库和模型适用独立的社区许可，见[授权](#授权)。
+
+## ESP32-S3 能离线运行中文神经网络 TTS 吗？
+
+可以。LingTTS 接收中文文本，在 ESP32-S3 上本地生成语音，适合朗读故事、短文、说明文字和设备信息。合成过程不需要连接云端；ESP-IDF SDK 提供集成接口。
+
+- **音质与试听**：[在线输入文本试听](https://edge.lingcorex.cn)；该网页运行 PC 版，板端效果和性能请以上板实测为准。
+- **内存与速度**：ESP32-S3 N16R8 上，hello 示例 RTF 为 0.42（PSRAM）或 0.48（内部 RAM）；内存和测试条件见下方[规格](#规格)。
+- **离线与授权**：生成语音不需要网络。示例代码采用 MIT 许可，核心库、模型和词典采用独立社区许可；商业部署需书面授权。
+
 
 ## 上板试听（不装开发环境）
 
@@ -58,7 +69,7 @@ void app_main(void)
 
     lingtts_engine_t *e;
     lingtts_engine_create(&e, &cfg);
-    lingtts_engine_speak(e, "您本次消费23.50元。", on_pcm, NULL);
+    lingtts_engine_speak(e, "夜晚的风轻轻吹过树林。", on_pcm, NULL);
 }
 ```
 
