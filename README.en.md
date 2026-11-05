@@ -4,11 +4,13 @@
 
 LingTTS is a neural text-to-speech model for offline Mandarin speech synthesis on ESP32-S3-class devices. It generates speech locally from Chinese text, including stories, short passages and device information. The ESP-IDF SDK provides an integration interface.
 
-[Try the online demo](https://edge.lingcorex.cn) — the demo runs the same C code and model compiled for a PC server; use a board to evaluate device performance.
+**Listen first:** [short sample](samples/mandarin-short.wav) · [short story](samples/mandarin-story.wav) · [type and synthesize your own text](https://edge.lingcorex.cn/#listen). The WAV samples are generated with LingTTS Voice A. The online demo runs a PC build; use board measurements below for device performance.
 
 ## Can ESP32-S3 run neural TTS offline?
 
 Yes. LingTTS runs the synthesis locally on ESP32-S3 without a cloud connection. The current community preview is 0.2.0-rc1. It supports Mandarin Chinese; English support is limited to letters and around 80 common words, not full English sentences.
+
+One voice model is about 1.83 MB; the model plus trimmed dictionary is about 2.38 MB. If LingTTS is useful for your ESP32 or embedded speech project, consider starring the repository so you can find it again and help other developers discover it.
 
 ## ESP32-S3 performance and memory
 
@@ -33,7 +35,25 @@ python -m pip install esptool==4.12.0
 python flash.py --port COM5  # Linux / WSL: python3 flash.py --port /dev/ttyUSB0
 ```
 
-Connect a phone to the `LingTTS-Demo` Wi-Fi hotspot (password `lingtts-demo`), open http://192.168.4.1, enter Chinese text and play it. For ESP-IDF integration, download the community SDK package from Releases and see the [Chinese README](README.md#在自己的工程里用).
+Connect a phone to the `LingTTS-Demo` Wi-Fi hotspot (password `lingtts-demo`), open http://192.168.4.1, enter Chinese text and play it.
+
+For ESP-IDF integration, clone this repository and fetch the versioned binary SDK package with checksum verification:
+
+```bash
+# Linux / WSL
+./scripts/get-sdk.sh
+
+# Windows PowerShell
+.\scripts\Get-LingTTSSdk.ps1
+```
+
+Then build from the SDK directory printed by the script, with ESP-IDF 5.5.6 configured:
+
+```bash
+idf.py -C examples/hello -B build/hello build
+```
+
+The examples and integration files are in this repository. The precompiled component, model and dictionary are distributed in the separately licensed SDK package. See the [Chinese integration guide](https://github.com/LingCoreX-AI/LingTTS/blob/main/docs/%E9%9B%86%E6%88%90%E6%8C%87%E5%8D%97.md).
 
 ## Limitations
 
