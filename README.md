@@ -21,10 +21,13 @@ LingTTS 是一款面向端侧的神经网络语音合成模型，在 ESP32-S3 �
 
 可以。LingTTS 接收中文文本，在 ESP32-S3 上本地生成语音，适合朗读故事、短文、说明文字和设备信息。合成过程不需要连接云端；ESP-IDF SDK 提供集成接口。
 
-- **音质与试听**：[在线输入文本试听](https://edge.lingcorex.cn)；该网页运行 PC 版，板端效果和性能请以上板实测为准。
-- **内存与速度**：ESP32-S3 N16R8 上，hello 示例 RTF 为 0.42（PSRAM）或 0.48（内部 RAM）；内存和测试条件见下方[规格](#规格)。
+**先听效果：**[短句试听](samples/mandarin-short.wav) · [童话朗读](samples/mandarin-story.wav) · [在线输入任意文本](https://edge.lingcorex.cn/#listen)。WAV 样例由 LingTTS 女声 A 合成；在线试听运行 PC 版，板端速度和资源请以上板数据为准。
+
+- **模型资源**：单音色模型 1.83 MB，模型加裁剪词典约 2.38 MB。
+- **板端速度**：ESP32-S3 N16R8 上，hello 示例 RTF 为 0.42（PSRAM）或 0.48（内部 RAM）。
 - **离线与授权**：生成语音不需要网络。示例代码采用 MIT 许可，核心库、模型和词典采用独立社区许可；商业部署需书面授权。
 
+如果 LingTTS 对你的 ESP32 或嵌入式语音项目有参考价值，欢迎点 Star 收藏，方便之后找到，也帮助更多开发者发现这个项目。
 
 ## 上板试听（不装开发环境）
 
@@ -44,13 +47,23 @@ LingTTS 是一款面向端侧的神经网络语音合成模型，在 ESP32-S3 �
 
 ## 在自己的工程里用
 
-从 [Releases](../../releases) 下载 SDK 包 `lingtts-sdk-<版本>-community.tar.gz`。包里有预编译组件 `components/lingtts`、模型和词典 `assets/`、两个示例和文档。本仓库的 `examples/` 与包里的示例相同，构建时要在解压后的 SDK 包里进行。
+本仓库提供组件接入示例和文档；预编译组件、模型和词典通过版本化 SDK 包分发。克隆仓库后，可运行脚本下载当前预览版并校验 SHA-256：
 
 ```bash
-. ~/esp/esp-idf-v5.5.6/export.sh
-cd lingtts-sdk-0.2.0-rc1-community
-idf.py -C examples/hello -B build/hello -p /dev/ttyUSB0 flash monitor
+# Linux / WSL
+./scripts/get-sdk.sh
+
+# Windows PowerShell
+.\scripts\Get-LingTTSSdk.ps1
 ```
+
+然后在脚本打印出的 SDK 目录中构建（已配置 ESP-IDF 5.5.6 环境）：
+
+```bash
+idf.py -C examples/hello -B build/hello build
+```
+
+刷写并监视串口时，把末尾的 `build` 换成 `-p <串口> flash monitor`。也可以直接从 [Releases](../../releases) 手动下载并核对 SHA-256。SDK 包中的组件和资源采用独立社区许可，细节见[授权](#授权)。
 
 ```c
 #include "lingtts_engine.h"
