@@ -63,7 +63,8 @@ The examples and integration files are in this repository. The precompiled compo
 
 ## Limitations
 
-The current release offers two Mandarin female voices, A and B. Male voices and other voices can be customized. English is limited as described above. Overall speech speed is adjustable (recommended 0.5–2.0×); SSML and emotion controls are not supported. Polyphonic characters, names and model numbers may require text adaptation. Other chips have not yet been adapted.
+- Full English sentences, SSML and emotion controls are not supported.
+- Polyphonic characters, names and model numbers may be mispronounced.
 
 ## License
 
