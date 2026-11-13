@@ -7,7 +7,7 @@
 
 - ESP32-S3 N16R8：16 MB Flash，8 MB 八线 PSRAM，CPU 240 MHz。
 - MAX98357A：BCLK GPIO15、LRCK GPIO16、DIN GPIO7，共地，按模组要求供电并连接扬声器。
-- 16 kHz、16 bit、单声道；默认音量 30%。本工程不驱动 LCD。
+- 16 kHz、16 bit、单声道；默认音量 50%。本工程不驱动 LCD。
 - 引擎用 `LINGTTS_MEM_PSRAM`：模型、词典、合成器和前端工作区都在 PSRAM，64 KiB PCM 队列也在 PSRAM；任务栈、网络和 I2S DMA 仍需内部 RAM。
 - 热点 `LingTTS-Demo`，密码 `lingtts-demo`；地址 `http://192.168.4.1`。
 - 不自动弹出门户，也不提供互联网。手机提示“无互联网”时选择保持连接。
@@ -92,7 +92,7 @@ idf.py -C examples/web_demo -B build/web_demo -p /dev/ttyUSB0 flash monitor
 
 新增网页语速选择与请求校验；旧请求省略语速时仍为 1.0 倍。上述 2026-10-23 数据仅代表 rc1；rc2 结果如下。
 
-2026-11-13，ESP32-S3 N16R8 + MAX98357A，使用发布草稿中的同一份 rc2 固件完成六档短句试听。六次任务均 `error=0`，用户确认各档语速正常、无断音爆音及尾音截断；本轮日志无异常重启。
+2026-11-13，ESP32-S3 N16R8 + MAX98357A，使用默认音量调整为 50% 之前的 rc2 固件完成六档短句试听。六次任务均 `error=0`，用户确认各档语速正常、无断音爆音及尾音截断；本轮日志无异常重启。
 
 | 语速 | 音频时长 | 首段 PCM | 合成耗时 |
 |---|---|---|---|
