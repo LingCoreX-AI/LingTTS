@@ -1,4 +1,4 @@
-# LingTTS API 参考（0.2.0-rc1）
+# LingTTS API 参考（0.2.0-rc2）
 
 应用只需要 `#include "lingtts_engine.h"`。它包含了 `lingtts.h`，常量、错误码和下面列出的几个工具函数在那里定义。
 
@@ -10,7 +10,7 @@
 | 名字 | 值 | 说明 |
 |---|---|---|
 | `LINGTTS_SAMPLE_RATE` | 16000 | 输出采样率（Hz），单声道 int16 |
-| `LINGTTS_VERSION` | `"0.2.0-rc1"` | 头文件版本；库的版本用 `lingtts_version()` |
+| `LINGTTS_VERSION` | `"0.2.0-rc2"` | 头文件版本；库的版本用 `lingtts_version()` |
 | `LINGTTS_ENGINE_NO_COPY` | `1u` | `cfg.flags`：PSRAM 配置下不把资源复制进 PSRAM |
 
 错误码见 `集成指南.md` 第 6 节。
@@ -71,6 +71,24 @@ typedef int (*lingtts_pcm_cb)(const int16_t *pcm, size_t n, void *user);
 - `LINGTTS_ERR_LICENSE`：内部限时评估构建的额度已用完（社区包默认不限制）（已经回调出去的音频不受影响）。
 - 其他负数：错误。
 
+### `int lingtts_engine_set_speed(lingtts_engine_t *e, float speed)`
+
+设置后续 `speak` 的语速，不需要销毁或重建引擎，也不分配内存。初始值由 `cfg.speed` 指定，默认 `1.0f`。
+
+| 倍率 | 效果 |
+|---|---|
+| `0.8f` | 较慢，音频更长 |
+| `1.0f` | 正常语速 |
+| `1.2f` | 较快，音频更短 |
+
+`speed` 必须是有限正数；建议使用 0.5～2.0，并对实际文本试听确认清晰度。内部缩放模型预测的音素时长，
+输出仍是 16 kHz PCM，播放端采样率保持不变；由于逐音素取整，音频时长不一定严格等于原时长除以倍率。
+使用 `.ltv` 音色包时，此倍率与音色包自带的语速倍率相乘。
+
+只能在调用 `speak` 的任务里、两次 `speak` 之间调用，不能在 PCM 回调里或另一个任务并发修改。
+成功返回 `LINGTTS_OK`；引擎为空、倍率为 0、负数、NaN 或无穷大时返回 `LINGTTS_ERR_ARG`，保持原语速。
+`cfg.speed` 使用相同的数值校验规则。底层 token 接口对应 `lingtts_set_speed(tts, speed)`。
+
 ### `void lingtts_engine_stop(lingtts_engine_t *e)`
 
 可以从任意任务调用。正在进行的 `speak` 在下一段 PCM 之前返回 `LINGTTS_STOPPED`，之后不再回调。
@@ -100,7 +118,7 @@ typedef int (*lingtts_pcm_cb)(const int16_t *pcm, size_t n, void *user);
 
 | 函数 | 说明 |
 |---|---|
-| `const char *lingtts_version(void)` | 库版本，例如 `"0.2.0-rc1"` |
+| `const char *lingtts_version(void)` | 库版本，例如 `"0.2.0-rc2"` |
 | `int lingtts_device_id(char *buf, size_t size)` | 本机设备 ID，用来申请授权。`size` 至少 35。返回 `LINGTTS_OK` 或 `LINGTTS_ERR_ARG` |
 | `int lingtts_is_licensed(const lingtts_t *tts)` | 1 = 已加载有效设备凭证，0 = 未加载；不表示商业使用权。参数用 `lingtts_engine_tts(e)` |
 | `uint32_t lingtts_eval_seconds_left(void)` | 社区版返回 `LINGTTS_UNLIMITED_SECONDS`（UINT32_MAX）；内部限时构建返回剩余秒数 |

@@ -36,7 +36,7 @@ idf.py -C examples/web_demo -B build/web_demo -p /dev/ttyUSB0 flash monitor
 
 1. 上电，等待串口输出 `Ready`。
 2. 电脑或手机连接热点，浏览器打开 `http://192.168.4.1`。
-3. 输入中文并点击播放；页面轮询状态，播放完毕显示摘要。
+3. 输入中文、选择语速（0.5～2.0 倍，默认 1.0）并点击播放；页面轮询状态，播放完毕显示摘要。
 4. 每次最多 4096 UTF-8 字节（约 1300 个汉字），超过时明确拒绝，不截断。
 5. 同时只接受一项任务，其他提交返回 HTTP 409。关闭网页不会中止已接受的播放，重新打开可看到状态和最后一次结果。
 
@@ -61,8 +61,8 @@ idf.py -C examples/web_demo -B build/web_demo -p /dev/ttyUSB0 flash monitor
 ## API
 
 - `GET /`：所有 CSS/JS 内嵌，无 CDN。
-- `POST /api/speak`：正文为 UTF-8 纯文本；202 已接受，409 忙，400 空白/非法 UTF-8/超长，408 请求接收失败。超时不能自动重试，先查询状态。
-- `GET /api/status`：`idle/playing/done/error`、任务 ID、错误码与指标、`licensed`、`unlimited`（社区版为 true）、`eval_left_s`（社区版为 null，不能显示成剩余秒数）；运行中结果尚未完整。
+- `POST /api/speak`：正文为 UTF-8 纯文本；可选请求头 `X-LingTTS-Speed` 为 0.5～2.0，省略为 1.0，非法值返回 400。设置由合成任务在本次朗读前应用，播放期间不变；202 已接受，409 忙，400 空白/非法 UTF-8/超长，408 请求接收失败。超时不能自动重试，先查询状态。
+- `GET /api/status`：`idle/playing/done/error`、任务 ID、语速 `speed`、错误码与指标、`licensed`、`unlimited`（社区版为 true）、`eval_left_s`（社区版为 null，不能显示成剩余秒数）；运行中结果尚未完整。
 
 ## 验证状态与上板验收
 
@@ -87,3 +87,7 @@ idf.py -C examples/web_demo -B build/web_demo -p /dev/ttyUSB0 flash monitor
 - 电脑浏览器访问；多端同时提交。
 - 连续播放 30 分钟以上，确认无重启、内存不持续下降。
 - 接近长度上限的文本；独立录音确认声音连续。
+
+## 0.2.0-rc2 验证
+
+新增网页语速选择与请求校验；旧请求省略语速时仍为 1.0 倍。新固件的板上调速试听、尾音与连续播放验收待完成；上述 2026-10-23 数据仅代表 rc1。

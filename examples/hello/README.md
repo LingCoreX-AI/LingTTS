@@ -45,6 +45,10 @@ lingtts_engine_speak(e, "你好。", on_pcm, user);   // 阻塞；on_pcm 收到 
 lingtts_engine_destroy(e);
 ```
 
+创建前用 `cfg.speed = 1.2f` 设置初始语速；创建后用 `lingtts_engine_set_speed(e, 0.8f)` 调整后续朗读。
+默认 `1.0f`，大于 1 更快、小于 1 更慢，建议 0.5～2.0。请检查返回码，且只在两次 `speak` 之间修改。
+输出仍为 16 kHz，无需修改 I2S 采样率。
+
 回调里直接写 I2S（DMA 写满就阻塞），所以合成快于播放时会自动等待。
 **DMA 缓冲必须比合成一块的时间长**（menuconfig 里的 I2S DMA 缓冲，默认 400 ms）：回调阻塞期间合成器不动，
 合成下一块（默认 32 帧 = 320 ms 音频，板上约 120~170 ms）时只靠 DMA 里剩下的数据撑着。
@@ -68,3 +72,5 @@ IDF 默认的 6 × 240 帧 = 90 ms 不够，块间会断供，听起来是轻微
   别的设备的授权 `lingtts_engine_create` 返回 -6（这一项是带开发授权的构建；社区版默认不读取授权分区）。
 - 板上的合成器 arena 比 PC 大约 27 KB，是 esp-nn 的 S3 内核要的 scratch。
 - PC 上同样的引擎代码由 `tools/pc_tests.sh` 验证（两种内存配置的输出都和底层 API 逐字节一致）。
+
+语速可在 `menuconfig` → LingTTS hello → Speech speed percent 中设置，50～200 对应 0.5～2.0 倍，默认 100。I2S 仍使用 16 kHz。

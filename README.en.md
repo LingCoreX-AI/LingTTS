@@ -8,7 +8,7 @@ LingTTS is a neural text-to-speech model for offline Mandarin speech synthesis o
 
 ## Can ESP32-S3 run neural TTS offline?
 
-Yes. LingTTS runs the synthesis locally on ESP32-S3 without a cloud connection. The current community preview is 0.2.0-rc1. It supports Mandarin Chinese; English support is limited to letters and around 80 common words, not full English sentences.
+Yes. LingTTS runs the synthesis locally on ESP32-S3 without a cloud connection. The current community preview is 0.2.0-rc2. It supports Mandarin Chinese; English support is limited to letters and around 80 common words, not full English sentences.
 
 One voice model is about 1.83 MB; the model plus trimmed dictionary is about 2.38 MB. If LingTTS is useful for your ESP32 or embedded speech project, consider starring the repository so you can find it again and help other developers discover it.
 
@@ -57,10 +57,16 @@ The examples and integration files are in this repository. The precompiled compo
 
 ## Limitations
 
-The current release offers a Mandarin voice. English is limited as described above; SSML, emotion and speed controls are not supported. Polyphonic characters, names and model numbers may require text adaptation. Other chips have not yet been adapted.
+The current release offers a Mandarin voice. English is limited as described above. Overall speech speed is adjustable (recommended 0.5–2.0×); SSML and emotion controls are not supported. Polyphonic characters, names and model numbers may require text adaptation. Other chips have not yet been adapted.
 
 ## License
 
 Examples, public headers and integration files use the [MIT license](licenses/MIT.txt). The precompiled engine, model, dictionary and demo firmware use the separate [LingTTS Community License 1.0](licenses/LingTTS-Community-License-1.0.md). The core and model are not open-source software. Personal projects, education, and internal company R&D, testing and prototypes are free; commercial deployment requires written authorization. Contact service@lingcorex.cn.
 
 Report board, documentation or pronunciation issues via [GitHub Issues](../../issues), including the board, SDK version, memory configuration and relevant logs. Do not include secrets or personal information.
+
+## Speech speed (0.2.0-rc2)
+
+The hotspot demo offers 0.5–2.0× speech speed (default 1.0×). In the hello example, menuconfig → LingTTS hello → Speech speed percent accepts 50–200.
+
+Set `cfg.speed = 1.2f` before engine creation, or call `lingtts_engine_set_speed(e, 0.8f)` between utterances in the same task that calls `speak`. Speed scales predicted phoneme durations; PCM and I2S stay at 16 kHz. The rc2 speed controls still require board listening and sustained playback acceptance. Earlier board measurements describe rc1.

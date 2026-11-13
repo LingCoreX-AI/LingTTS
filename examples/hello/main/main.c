@@ -81,6 +81,8 @@ void app_main(void)
     i2s_init();
     lingtts_engine_cfg_t cfg;
     lingtts_engine_default_cfg(&cfg);
+    cfg.speed = CONFIG_HELLO_SPEED_PERCENT / 100.0f;
+    printf("语速 %.2fx（输出仍为 16 kHz）\n", (double)cfg.speed);
     /* 有 4 MB 以上 PSRAM 就用 PSRAM 配置（快约 25%），否则用内部 RAM 分时复用 */
     cfg.mem = heap_caps_get_total_size(MALLOC_CAP_SPIRAM) >= 4 * 1024 * 1024 && !CONFIG_HELLO_FORCE_INTERNAL
                   ? LINGTTS_MEM_PSRAM
