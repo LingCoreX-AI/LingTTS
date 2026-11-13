@@ -76,4 +76,6 @@ Report board, documentation or pronunciation issues via [GitHub Issues](../../is
 
 The hotspot demo offers 0.5–2.0× speech speed (default 1.0×). In the hello example, menuconfig → LingTTS hello → Speech speed percent accepts 50–200.
 
-Set `cfg.speed = 1.2f` before engine creation, or call `lingtts_engine_set_speed(e, 0.8f)` between utterances in the same task that calls `speak`. Speed scales predicted phoneme durations; PCM and I2S stay at 16 kHz. Board listening passed for all six speeds on 2026-11-13 (six short utterances, all error codes zero). An instrumented validation build using the same rc2 engine and HTTP/synthesis/I2S paths, at 3% volume, completed 84 utterances and 30 min 35 s of audio over 32 min 23 s, with no playback errors or unexpected reboot and no sustained decrease in sampled free memory. This was separate from the exact released app binary. Earlier specification measurements describe rc1; see the [demo validation record](examples/web_demo/README.md).
+Set `cfg.speed = 1.2f` before engine creation, or call `lingtts_engine_set_speed(e, 0.8f)` between utterances in the same task that calls `speak`. Speed scales predicted phoneme durations; PCM and I2S stay at 16 kHz.
+
+Board listening at all six speeds and a 30-minute continuous playback test: passed.
