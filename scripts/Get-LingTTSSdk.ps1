@@ -1,7 +1,7 @@
 param([string]$Destination = "$PSScriptRoot\..\.downloads")
 $ErrorActionPreference = 'Stop'
 
-$version = '0.2.0-rc1'
+$version = '0.2.0-rc2'
 $asset = "lingtts-sdk-$version-community.tar.gz"
 $base = "https://github.com/LingCoreX-AI/LingTTS/releases/download/v$version"
 $download = Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid().ToString())

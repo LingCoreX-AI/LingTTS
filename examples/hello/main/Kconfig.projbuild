@@ -12,6 +12,10 @@ config HELLO_VOLUME
     int "Playback volume percent"
     range 1 100
     default 30
+config HELLO_SPEED_PERCENT
+    int "Speech speed percent (100 = normal)"
+    range 50 200
+    default 100
 config HELLO_DMA_MS
     int "I2S DMA buffer (ms): must exceed the synthesis time of one block, or playback gaps (pops) between blocks"
     range 100 1000

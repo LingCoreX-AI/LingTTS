@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <math.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
@@ -33,6 +34,7 @@ static char input[TEXT_BYTES + 1];
 static lingtts_engine_mem_t engine_mem;
 static struct {
     unsigned id;
+    float speed;
     bool busy, synth_done;
     int error;
     int64_t start_us, first_us, compute_us, end_us;
@@ -92,6 +94,10 @@ static void synth_worker(void *unused)
         ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
         callback_us = 0;
         last_yield = xTaskGetTickCount();
+        xSemaphoreTake(lock, portMAX_DELAY);
+        float speed = run.speed;
+        xSemaphoreGive(lock);
+        ESP_ERROR_CHECK(lingtts_engine_set_speed(engine, speed) == LINGTTS_OK ? ESP_OK : ESP_FAIL);
         xTaskNotifyGive(play_task);
         int64_t begin = esp_timer_get_time();
         int result = lingtts_engine_speak(engine, input, pcm_cb, NULL);
@@ -158,7 +164,7 @@ static void play_worker(void *unused)
         run.end_us = esp_timer_get_time();
         sample_memory_locked();
         run.busy = false;
-        ESP_LOGI(TAG, "job=%u error=%d first_pcm=%.1fms audio=%.2fs compute=%.2fs", run.id, run.error,
+        ESP_LOGI(TAG, "job=%u error=%d speed=%.2f first_pcm=%.1fms audio=%.2fs compute=%.2fs", run.id, run.error, (double)run.speed,
                  run.first_us / 1000., run.samples / 16000., run.compute_us / 1e6);
         xSemaphoreGive(lock);
     }
@@ -175,6 +181,7 @@ static esp_err_t status(httpd_req_t *req)
     xSemaphoreTake(lock, portMAX_DELAY);
     cJSON_AddStringToObject(j, "state", run.busy ? "playing" : !run.id ? "idle" : run.error ? "error" : "done");
     cJSON_AddNumberToObject(j, "id", run.id);
+    cJSON_AddNumberToObject(j, "speed", run.id ? run.speed : 1.0);
     cJSON_AddNumberToObject(j, "error", run.error);
     cJSON_AddNumberToObject(j, "first_pcm_ms", run.first_us / 1000.);
     cJSON_AddNumberToObject(j, "audio_s", run.samples / 16000.);
@@ -239,6 +246,17 @@ static esp_err_t speak(httpd_req_t *req)
         httpd_resp_set_status(req, "409 Conflict");
         return httpd_resp_sendstr(req, "Playback in progress");
     }
+    float speed = 1.0f;
+    size_t speed_len = httpd_req_get_hdr_value_len(req, "X-LingTTS-Speed");
+    if (speed_len) {
+        char value[32], *end;
+        if (speed_len >= sizeof(value) ||
+            httpd_req_get_hdr_value_str(req, "X-LingTTS-Speed", value, sizeof(value)) != ESP_OK)
+            return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Invalid speed");
+        speed = strtof(value, &end);
+        if (end == value || *end || !isfinite(speed) || speed < 0.5f || speed > 2.0f)
+            return httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Speed must be 0.5..2.0");
+    }
     // HTTP server serializes handlers; no producer is active while busy=false.
     size_t n = 0;
     while (n < req->content_len) {
@@ -254,6 +272,7 @@ static esp_err_t speak(httpd_req_t *req)
     unsigned id = run.id + 1;
     memset(&run, 0, sizeof(run));
     run.id = id;
+    run.speed = speed;
     run.busy = true;
     run.min_internal = run.min_psram = SIZE_MAX;
     run.start_us = esp_timer_get_time();

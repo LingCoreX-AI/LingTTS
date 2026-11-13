@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-version="0.2.0-rc1"
+version="0.2.0-rc2"
 asset="lingtts-sdk-${version}-community.tar.gz"
 repo="https://github.com/LingCoreX-AI/LingTTS/releases/download/v${version}"
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
