@@ -11,7 +11,7 @@
 
 **ESP32-S3 上的离线中英文语音合成。** Separate Chinese and English resource packages for ESP32-S3.
 
-LingTTS 是一款面向端侧的神经网络语音合成模型，在 ESP32-S3 级别的芯片上，即可实现高质量中文语音合成。完全离线运行，无需云端服务，让低成本设备也能自然开口。
+LingTTS 是一款面向端侧的神经网络语音合成模型，在 ESP32-S3 级别的芯片上，即可实现高质量中文和英文语音合成。完全离线运行，无需云端服务，让低成本设备也能自然开口。
 
 在线试听：<https://edge.lingcorex.cn>（服务器上跑的是同一份 C 代码和模型，编译成了 PC 版）
 
@@ -30,23 +30,49 @@ LingTTS 是一款面向端侧的神经网络语音合成模型，在 ESP32-S3 �
 通用SDK用 `./scripts/get-sdk.sh` 或 `scripts/Get-LingTTSSdk.ps1` 下载；英语只需额外下载独立资源包。
 本版一个英语音色；不支持中英混合朗读，姓名及多音词可能读错。
 
-## ESP32-S3 能离线运行中文神经网络 TTS 吗？
+## ESP32-S3 能离线运行中文和英文神经网络 TTS 吗？
 
-可以。LingTTS 接收中文文本，在 ESP32-S3 上本地生成语音，适合朗读故事、短文、说明文字和设备信息。合成过程不需要连接云端；ESP-IDF SDK 提供集成接口。
+可以。同一套 LingTTS SDK 和推理接口，加载对应的中文或英语资源即可本地生成语音，无需连接云端；ESP-IDF SDK 提供集成接口。
 
-**先听效果：**[短句试听](samples/mandarin-short.wav) · [童话朗读](samples/mandarin-story.wav) · [在线输入任意文本](https://edge.lingcorex.cn/#listen)。WAV 样例由 LingTTS 女声 A 合成；在线试听运行 PC 版，板端速度和资源请以上板数据为准。
+### 中文
+
+接收中文文本，适合朗读故事、短文、说明文字和设备信息。
+
+**先听效果：**[中文短句](samples/mandarin-short.wav) · [中文童话](samples/mandarin-story.wav) · [在线输入中文](https://edge.lingcorex.cn/#listen)。WAV 样例由普通话女声 A 合成；在线试听运行 PC 版。
 
 - **模型资源**：单音色模型 1.83 MB，模型加裁剪词典约 2.38 MB。
-- **板端速度**：ESP32-S3 N16R8 上，hello 示例 RTF 为 0.42（PSRAM）或 0.48（内部 RAM）。
-- **离线与授权**：生成语音不需要网络。示例代码采用 MIT 许可，核心库、模型和词典采用独立社区许可；商业部署需书面授权。
+- **板端速度**：ESP32-S3 N16R8，hello 示例 RTF 为 **0.419～0.440（PSRAM）**，本次发布版三句实测。
+- **音色**：普通话女声 A、女声 B；默认使用女声 A，女声 B 为独立模型资源。
+
+### 英文
+
+接收英文文本，适合朗读日常对话、指令、故事和短文，使用美式英语女声 A。
+
+**先听效果：**[英文短句](samples/english-short.wav) · [英文故事](samples/english-story.wav)。这两个 WAV 样例由真实 ESP32-S3 从文本合成。
+
+- **模型资源**：英语模型 1.61 MB，精简词典约 95 KB，合计约 **1.71 MB**。
+- **板端速度**：ESP32-S3 N16R8，hello 示例 RTF 为 **0.390～0.397（PSRAM）**，本次发布版三句实测；独立完整文本测试的 RTF 中位数为 **0.580（无 PSRAM）**。
+- **音色**：一个美式英语女声 A。额外下载英语资源包，成套替换模型与词典，共用 hello 和 web_demo。
+
+两种语言的试听文本不同，速度数据用于说明各自运行情况；详情见[实机验收](releases/v0.3.0-rc1-validation.md)和[英语资源与性能](docs/英语资源与性能.md)。RTF 越小越快，小于 1 即快于实时。
+
+**离线与授权：**两种语言均无需联网合成。示例代码采用 MIT 许可，核心库、模型和词典采用独立社区许可；商业部署需书面授权。
 
 如果 LingTTS 对你的 ESP32 或嵌入式语音项目有参考价值，欢迎点 Star 收藏，方便之后找到，也帮助更多开发者发现这个项目。
 
 ## 音色
 
-当前提供两种普通话女声：**女声 A** 随 SDK 和快速体验固件提供；**女声 B** 从 [v0.2.0-rc2 Release](https://github.com/LingCoreX-AI/LingTTS/releases/tag/v0.2.0-rc2) 下载独立资源包 `lingtts-voice-b-1.0.tar.gz`。
+### 中文音色
 
-女声 B 是完整模型，按 [集成指南](docs/集成指南.md) 替换模型资源即可使用。现成体验固件默认使用女声 A；同时保存两种音色需要额外模型分区，切换时重建引擎。
+提供两种普通话女声：**女声 A** 随通用 SDK 和快速体验固件提供；**女声 B** 从 [v0.2.0-rc2 Release](https://github.com/LingCoreX-AI/LingTTS/releases/tag/v0.2.0-rc2) 下载独立资源包 `lingtts-voice-b-1.0.tar.gz`。
+
+女声 B 是完整模型，按[集成指南](docs/集成指南.md)替换模型资源即可使用。现成体验固件默认使用中文女声 A；同时保存两种中文音色需要额外模型分区，切换时重建引擎。
+
+### 英文音色
+
+提供一个**美式英语女声 A**，英语模型版本 **1.1.0**。从 [v0.3.0-rc1 Release](https://github.com/LingCoreX-AI/LingTTS/releases/tag/v0.3.0-rc1) 下载 `lingtts-resources-en-US-1.1.0-community.tar.gz`。
+
+升级到通用 SDK 后，按[英语资源切换](docs/英语资源切换.md)成套替换模型和词典，无需更换应用或修改 hello / web_demo。英语女声 A 与中文女声 A 是不同的语言模型；当前不支持中英混合朗读或运行时双语言包自动管理。
 
 ## 上板试听（不装开发环境）
 
