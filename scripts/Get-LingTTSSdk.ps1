@@ -10,8 +10,8 @@ $checksum = "$archive.sha256"
 $null = New-Item -ItemType Directory -Force -Path $download
 $null = New-Item -ItemType Directory -Force -Path $Destination
 try {
-    Invoke-WebRequest -Uri "$base/$asset" -OutFile $archive
-    Invoke-WebRequest -Uri "$base/$asset.sha256" -OutFile $checksum
+    Invoke-WebRequest -Headers @{'Cache-Control'='no-cache'} -Uri "$base/$asset" -OutFile $archive
+    Invoke-WebRequest -Headers @{'Cache-Control'='no-cache'} -Uri "$base/$asset.sha256" -OutFile $checksum
     $expected = ((Get-Content $checksum -Raw).Trim() -split '\s+')[0].ToLowerInvariant()
     $actual = (Get-FileHash -Algorithm SHA256 $archive).Hash.ToLowerInvariant()
     if ($actual -ne $expected) { throw "SHA-256 mismatch for $asset" }

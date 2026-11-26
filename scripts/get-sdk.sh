@@ -10,8 +10,8 @@ tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 mkdir -p "$dest"
 
-curl --fail --location --retry 3 --output "${tmp}/${asset}" "${repo}/${asset}"
-curl --fail --location --retry 3 --output "${tmp}/${asset}.sha256" "${repo}/${asset}.sha256"
+curl --fail --location --retry 3 --header 'Cache-Control: no-cache' --output "${tmp}/${asset}" "${repo}/${asset}"
+curl --fail --location --retry 3 --header 'Cache-Control: no-cache' --output "${tmp}/${asset}.sha256" "${repo}/${asset}.sha256"
 (cd "$tmp" && sha256sum --check "${asset}.sha256")
 tar -xzf "${tmp}/${asset}" -C "$dest"
 printf '\nSDK ready: %s\n' "${dest}/lingtts-sdk-${version}-community"
