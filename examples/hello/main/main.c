@@ -15,7 +15,12 @@
 #define CONFIG_HELLO_FORCE_INTERNAL 0
 #endif
 
-static const char *const texts[] = {
+static const char *const english_texts[] = {
+    "The next train arrives at four thirty.",
+    "Please set the volume to 25%.",
+    "After breakfast, we walked beside the river and watched the boats pass under the bridge.",
+};
+static const char *const chinese_texts[] = {
     "你好，这是LingTTS，一个运行在单片机上的离线语音合成引擎。",
     "今天是2026年10月22日，气温18到25摄氏度，空气质量良。",
     "请连接WiFi，然后在App里输入验证码3721。",
@@ -82,6 +87,7 @@ void app_main(void)
     lingtts_engine_cfg_t cfg;
     lingtts_engine_default_cfg(&cfg);
     cfg.speed = CONFIG_HELLO_SPEED_PERCENT / 100.0f;
+    cfg.max_tokens = 64;  /* Same bounded segment workspace for either resource package. */
     printf("语速 %.2fx（输出仍为 16 kHz）\n", (double)cfg.speed);
     /* 有 4 MB 以上 PSRAM 就用 PSRAM 配置（快约 25%），否则用内部 RAM 分时复用 */
     cfg.mem = heap_caps_get_total_size(MALLOC_CAP_SPIRAM) >= 4 * 1024 * 1024 && !CONFIG_HELLO_FORCE_INTERNAL
@@ -103,19 +109,29 @@ void app_main(void)
            lingtts_version(), cfg.mem == LINGTTS_MEM_PSRAM ? "PSRAM" : "INTERNAL",
            (esp_timer_get_time() - t0) / 1000, (unsigned)m.tts_arena, (unsigned)m.fe_arena, (unsigned)m.shared,
            (unsigned)m.copied, (unsigned)(free0 - heap_caps_get_free_size(MALLOC_CAP_INTERNAL)));
+#ifdef LINGTTS_ENGINE_SUPPORTS_ENGLISH
+    const int english = lingtts_engine_is_english(e);
+    printf("Language: %s\n", english ? "en-US" : "zh-CN");
+#else
+    const int english = 0;
+    printf("Language: zh-CN\n");
+#endif
     char id[40];
     lingtts_t *tts = lingtts_engine_tts(e);
     if (lingtts_device_id(id, sizeof(id)) != LINGTTS_OK) {
         snprintf(id, sizeof(id), "（读取失败）");
     }
-    if (lingtts_is_licensed(tts)) {
+    if (tts && lingtts_is_licensed(tts)) {
         printf("设备 ID %s，已授权\n", id);
     } else if (lingtts_eval_seconds_left() == LINGTTS_UNLIMITED_SECONDS) {
         printf("社区版：无需设备激活，不限合成时长；商业使用需另行授权\n");
     } else {
         printf("设备 ID %s，评估模式（本次开机还能合成 %u 秒）\n", id, (unsigned)lingtts_eval_seconds_left());
     }
-    for (size_t i = 0; i < sizeof(texts) / sizeof(texts[0]); i++) {
+    const char *const *texts = english ? english_texts : chinese_texts;
+    const size_t text_count = english ? sizeof(english_texts) / sizeof(english_texts[0])
+                                      : sizeof(chinese_texts) / sizeof(chinese_texts[0]);
+    for (size_t i = 0; i < text_count; i++) {
         size_t samples = 0;
         underruns = 0;
         cb_us = 0;

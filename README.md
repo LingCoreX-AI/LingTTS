@@ -5,17 +5,30 @@
   </picture>
 </p>
 
-# LingTTS：ESP32-S3 离线中文神经网络语音合成
+# LingTTS：ESP32-S3 离线中英文神经网络语音合成
 
 [English](README.en.md) | 简体中文
 
-**ESP32-S3 上的离线中文语音合成。** Offline Chinese text-to-speech for ESP32-S3.
+**ESP32-S3 上的离线中英文语音合成。** Separate Chinese and English resource packages for ESP32-S3.
 
 LingTTS 是一款面向端侧的神经网络语音合成模型，在 ESP32-S3 级别的芯片上，即可实现高质量中文语音合成。完全离线运行，无需云端服务，让低成本设备也能自然开口。
 
 在线试听：<https://edge.lingcorex.cn>（服务器上跑的是同一份 C 代码和模型，编译成了 PC 版）
 
-当前版本 **0.2.0-rc2（社区预览版）**。社区版免费，示例代码 MIT；核心库和模型适用独立的社区许可，见[授权](#授权)。
+当前版本 **0.3.0-rc1（社区预览版）**（现有0.2.0-rc2仍可下载）。社区版免费，示例代码 MIT；核心库和模型适用独立的社区许可，见[授权](#授权)。
+
+
+## 本次更新：英语语言资源
+
+英语模型 **1.1.0**，美式英语女声A。沿用中文版SDK目录、接口、hello和热点例程。
+既有中文0.2.0-rc2发布保留；本次统一更新的发布状态见[v0.3.0-rc1说明](releases/v0.3.0-rc1.md)。
+
+试听：[英文短句](samples/english-short.wav) · [英文故事](samples/english-story.wav)。音频为真实ESP32-S3完整文本合成。
+英语模型1.61MB；无PSRAM完整文本板测RTF0.580、首PCM中位233ms、工作区约206KiB。
+见[英语版集成](docs/英语版集成.md)和[英语资源与性能](docs/英语资源与性能.md)。
+
+通用SDK用 `./scripts/get-sdk.sh` 或 `scripts/Get-LingTTSSdk.ps1` 下载；英语只需额外下载独立资源包。
+本版一个英语音色；不支持中英混合朗读，姓名及多音词可能读错。
 
 ## ESP32-S3 能离线运行中文神经网络 TTS 吗？
 
@@ -31,7 +44,7 @@ LingTTS 是一款面向端侧的神经网络语音合成模型，在 ESP32-S3 �
 
 ## 音色
 
-当前提供两种普通话女声：**女声 A** 随 SDK 和快速体验固件提供；**女声 B** 从本版本 [Releases](../../releases) 下载独立资源包 `lingtts-voice-b-1.0.tar.gz`。
+当前提供两种普通话女声：**女声 A** 随 SDK 和快速体验固件提供；**女声 B** 从 [v0.2.0-rc2 Release](https://github.com/LingCoreX-AI/LingTTS/releases/tag/v0.2.0-rc2) 下载独立资源包 `lingtts-voice-b-1.0.tar.gz`。
 
 女声 B 是完整模型，按 [集成指南](docs/集成指南.md) 替换模型资源即可使用。现成体验固件默认使用女声 A；同时保存两种音色需要额外模型分区，切换时重建引擎。
 
@@ -110,7 +123,7 @@ lingtts_engine_set_speed(e, 0.8f);
 
 ## 规格
 
-ESP32-S3 N16R8 · 240 MHz · ESP-IDF 5.5.6，板上实测。
+下表为中文0.2.0版本的历史板测；本次中英文通用SDK的[实机验收](releases/v0.3.0-rc1-validation.md)另列。ESP32-S3 N16R8 · 240 MHz · ESP-IDF 5.5.6。
 
 | | |
 |---|---|
@@ -126,7 +139,7 @@ ESP32-S3 N16R8 · 240 MHz · ESP-IDF 5.5.6，板上实测。
 
 ## 当前局限
 
-- 暂不支持整句英文、SSML 和情感控制。
+- 中文资源不支持整句英文；使用英语请成套更换资源。暂不支持混合朗读、SSML 和情感控制。
 - 多音字、专名及型号编号可能读错。
 
 ## 授权

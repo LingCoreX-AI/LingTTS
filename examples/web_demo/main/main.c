@@ -46,6 +46,14 @@ static int64_t callback_us;
 static TickType_t last_yield;
 extern const char page[] asm("_binary_index_html_start");
 
+static const char *demo_language(void)
+{
+#ifdef LINGTTS_ENGINE_SUPPORTS_ENGLISH
+    return lingtts_engine_is_english(engine) ? "en-US" : "zh-CN";
+#else
+    return "zh-CN";
+#endif
+}
 static void sample_memory_locked(void)
 {
     size_t a = heap_caps_get_free_size(MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
@@ -197,7 +205,10 @@ static esp_err_t status(httpd_req_t *req)
     cJSON_AddNumberToObject(j, "psram_total", heap_caps_get_total_size(MALLOC_CAP_SPIRAM));
     cJSON_AddNumberToObject(j, "tts_arena_used", engine_mem.tts_arena);
     cJSON_AddNumberToObject(j, "demo_psram_reserved", engine_mem.copied + engine_mem.tts_arena + engine_mem.fe_arena + PCM_QUEUE_BYTES + 1);
-    cJSON_AddBoolToObject(j, "licensed", lingtts_is_licensed(lingtts_engine_tts(engine)));
+    lingtts_t *tts = lingtts_engine_tts(engine);
+    cJSON_AddBoolToObject(j, "licensed", tts && lingtts_is_licensed(tts));
+    cJSON_AddStringToObject(j, "language", demo_language());
+    cJSON_AddStringToObject(j, "sdk_version", lingtts_version());
     uint32_t left = lingtts_eval_seconds_left();
     cJSON_AddBoolToObject(j, "unlimited", left == LINGTTS_UNLIMITED_SECONDS);
     if (left == LINGTTS_UNLIMITED_SECONDS) cJSON_AddNullToObject(j, "eval_left_s");
@@ -293,6 +304,7 @@ void app_main(void)
     lingtts_engine_cfg_t cfg;
     lingtts_engine_default_cfg(&cfg);
     cfg.mem = LINGTTS_MEM_PSRAM;
+    cfg.max_tokens = 64;  /* Common workspace budget; resource headers select the language. */
     int r = lingtts_engine_create(&engine, &cfg);
     if (r != LINGTTS_OK) {
         ESP_LOGE(TAG, "lingtts_engine_create failed: %d (-6 = license invalid for this device)", r);
@@ -302,7 +314,7 @@ void app_main(void)
     char id[40];
     if (lingtts_device_id(id, sizeof(id)) != LINGTTS_OK) snprintf(id, sizeof(id), "?");
     ESP_LOGI(TAG, "LingTTS %s, device %s, %s", lingtts_version(), id,
-             lingtts_is_licensed(lingtts_engine_tts(engine)) ? "device certificate verified" : "community (no activation, unlimited)");
+             lingtts_engine_tts(engine) && lingtts_is_licensed(lingtts_engine_tts(engine)) ? "device certificate verified" : "community (no activation, unlimited)");
     pcm_queue = xStreamBufferCreateStatic(PCM_QUEUE_BYTES + 1, 1, psalloc(PCM_QUEUE_BYTES + 1), &pcm_control);
     ESP_ERROR_CHECK(pcm_queue ? ESP_OK : ESP_ERR_NO_MEM);
     i2s_chan_config_t cc = I2S_CHANNEL_DEFAULT_CONFIG(I2S_NUM_0, I2S_ROLE_MASTER);
@@ -348,5 +360,6 @@ void app_main(void)
         {.uri = "/api/speak", .method = HTTP_POST, .handler = speak},
     };
     for (size_t i = 0; i < sizeof(routes) / sizeof(routes[0]); i++) ESP_ERROR_CHECK(httpd_register_uri_handler(server, &routes[i]));
+    ESP_LOGI(TAG, "Language: %s", demo_language());
     ESP_LOGI(TAG, "Ready: connect to %s, open http://192.168.4.1", ssid);
 }
