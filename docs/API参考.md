@@ -1,4 +1,4 @@
-# LingTTS API 参考（0.2.0-rc2）
+# LingTTS API 参考（0.3.0-rc1）
 
 应用只需要 `#include "lingtts_engine.h"`。它包含了 `lingtts.h`，常量、错误码和下面列出的几个工具函数在那里定义。
 
@@ -10,7 +10,7 @@
 | 名字 | 值 | 说明 |
 |---|---|---|
 | `LINGTTS_SAMPLE_RATE` | 16000 | 输出采样率（Hz），单声道 int16 |
-| `LINGTTS_VERSION` | `"0.2.0-rc2"` | 头文件版本；库的版本用 `lingtts_version()` |
+| `LINGTTS_VERSION` | `"0.3.0-rc1"` | 头文件版本；库的版本用 `lingtts_version()` |
 | `LINGTTS_ENGINE_NO_COPY` | `1u` | `cfg.flags`：PSRAM 配置下不把资源复制进 PSRAM |
 
 错误码见 `集成指南.md` 第 6 节。
@@ -118,7 +118,7 @@ typedef int (*lingtts_pcm_cb)(const int16_t *pcm, size_t n, void *user);
 
 | 函数 | 说明 |
 |---|---|
-| `const char *lingtts_version(void)` | 库版本，例如 `"0.2.0-rc2"` |
+| `const char *lingtts_version(void)` | 库版本，例如 `"0.3.0-rc1"` |
 | `int lingtts_device_id(char *buf, size_t size)` | 本机设备 ID，用来申请授权。`size` 至少 35。返回 `LINGTTS_OK` 或 `LINGTTS_ERR_ARG` |
 | `int lingtts_is_licensed(const lingtts_t *tts)` | 1 = 已加载有效设备凭证，0 = 未加载；不表示商业使用权。参数用 `lingtts_engine_tts(e)` |
 | `uint32_t lingtts_eval_seconds_left(void)` | 社区版返回 `LINGTTS_UNLIMITED_SECONDS`（UINT32_MAX）；内部限时构建返回剩余秒数 |
@@ -126,3 +126,11 @@ typedef int (*lingtts_pcm_cb)(const int16_t *pcm, size_t n, void *user);
 ## 完整例子
 
 见 `examples/hello/main/main.c`（约 150 行，含 I2S 初始化、断供统计、内存和速度打印）。
+
+## 语言资源识别（0.3.0）
+
+同一引擎由模型与前端文件头选择中文或英语路径，`create/speak/stop/set_speed/destroy` 调用一致。
+`lingtts_engine_is_english(e)` 返回是否为英语引擎。英语的 `lingtts_engine_tts(e)` 返回 NULL；
+不要将它传给中文底层 API；英语统计接口见 `lingtts_english.h`。
+资源必须成套替换。当前未提供运行时双包管理或混合朗读。默认 max_tokens 仍为128；
+共用示例显式设64，作为两种语言一致的分段和工作区预算。
